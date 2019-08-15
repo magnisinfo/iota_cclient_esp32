@@ -1,0 +1,25 @@
+#! /bin/bash
+
+DIR=$(cd "$(dirname "$0")"; pwd)
+cd $DIR
+
+echo "Choose port to load:"
+a=0
+for entry in /dev/cu.*
+do
+    ((a++))
+    echo "($a) - $entry"
+    ports+=("$entry")
+done
+echo "Write number:"
+read -n 1 p
+echo ""
+if [ $p -ge 1 ] && [ $p -le $a ]
+    then
+    echo "Building..."
+    idf.py build
+    echo "Flashing to ${ports[p-1]}..."
+    idf.py -p "${ports[p-1]}" flash monitor
+else
+    echo "Incorrect port choosed. Flash failed"
+fi

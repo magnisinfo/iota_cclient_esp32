@@ -1,0 +1,134 @@
+diff --git a/.gitignore b/.gitignore
+index 20d4a997..9eb3bec0 100644
+--- a/.gitignore
++++ b/.gitignore
+@@ -81,3 +81,43 @@ xcuserdata/
+ # iOS Frameworks
+ *.framework
+ *.framework/*
++utils/containers/hash/hash243_queue.c
++utils/containers/hash/hash243_queue.c-e
++utils/containers/hash/hash243_queue.h
++utils/containers/hash/hash243_queue.h-e
++utils/containers/hash/hash243_stack.c
++utils/containers/hash/hash243_stack.c-e
++utils/containers/hash/hash243_stack.h
++utils/containers/hash/hash243_stack.h-e
++utils/containers/hash/hash27_queue.c
++utils/containers/hash/hash27_queue.c-e
++utils/containers/hash/hash27_queue.h
++utils/containers/hash/hash27_queue.h-e
++utils/containers/hash/hash27_stack.c
++utils/containers/hash/hash27_stack.c-e
++utils/containers/hash/hash27_stack.h
++utils/containers/hash/hash27_stack.h-e
++utils/containers/hash/hash6561_queue.c
++utils/containers/hash/hash6561_queue.c-e
++utils/containers/hash/hash6561_queue.h
++utils/containers/hash/hash6561_queue.h-e
++utils/containers/hash/hash6561_stack.c
++utils/containers/hash/hash6561_stack.c-e
++utils/containers/hash/hash6561_stack.h
++utils/containers/hash/hash6561_stack.h-e
++utils/containers/hash/hash8019_queue.c
++utils/containers/hash/hash8019_queue.c-e
++utils/containers/hash/hash8019_queue.h
++utils/containers/hash/hash8019_queue.h-e
++utils/containers/hash/hash8019_stack.c
++utils/containers/hash/hash8019_stack.c-e
++utils/containers/hash/hash8019_stack.h
++utils/containers/hash/hash8019_stack.h-e
++utils/containers/hash/hash81_queue.c
++utils/containers/hash/hash81_queue.c-e
++utils/containers/hash/hash81_queue.h
++utils/containers/hash/hash81_queue.h-e
++utils/containers/hash/hash81_stack.c
++utils/containers/hash/hash81_stack.c-e
++utils/containers/hash/hash81_stack.h
++utils/containers/hash/hash81_stack.h-e
+diff --git a/cclient/api/extended/send_transfer.c b/cclient/api/extended/send_transfer.c
+index 586cf1f6..695e0021 100644
+--- a/cclient/api/extended/send_transfer.c
++++ b/cclient/api/extended/send_transfer.c
+@@ -30,7 +30,7 @@ retcode_t iota_client_send_transfer(iota_client_service_t const* const serv, fle
+         transaction_serialize_on_flex_trits(tx, serialized_value);
+         utarray_insert(raw_tx, serialized_value, 0);
+       }
+-
++        bundle_transactions_free(&out_tx_objs);
+       ret_code = iota_client_send_trytes(serv, raw_tx, depth, mwm, reference, local_pow, out_tx_objs);
+     }
+ 
+diff --git a/cclient/api/extended/send_trytes.c b/cclient/api/extended/send_trytes.c
+index 05ccc66d..b40a23f5 100644
+--- a/cclient/api/extended/send_trytes.c
++++ b/cclient/api/extended/send_trytes.c
+@@ -19,7 +19,7 @@ retcode_t iota_client_send_trytes(iota_client_service_t const* const serv, hash8
+   get_transactions_to_approve_res_t* tx_approve_res = get_transactions_to_approve_res_new();
+   attach_to_tangle_req_t* attach_req = NULL;
+   attach_to_tangle_res_t* attach_res = NULL;
+-  flex_trit_t* elt = NULL;
++  //flex_trit_t* elt = NULL;
+   size_t tx_deserialize_offset = 0;
+   iota_transaction_t tx;
+ 
+@@ -81,7 +81,7 @@ retcode_t iota_client_send_trytes(iota_client_service_t const* const serv, hash8
+   }
+ 
+   // trytes to transaction objects
+-  HASH_ARRAY_FOREACH(trytes, elt) {
++  /*HASH_ARRAY_FOREACH(trytes, elt) {
+     tx_deserialize_offset = transaction_deserialize_from_trits(&tx, elt, true);
+     if (tx_deserialize_offset) {
+       transaction_array_push_back(out_transactions, &tx);
+@@ -90,7 +90,7 @@ retcode_t iota_client_send_trytes(iota_client_service_t const* const serv, hash8
+       log_error(client_extended_logger_id, "%s: %s.\n", __func__, error_2_string(ret_code));
+       goto done;
+     }
+-  }
++  }*/
+ 
+ done:
+   get_transactions_to_approve_req_free(&tx_approve_req);
+diff --git a/utils/handles/rw_lock.h b/utils/handles/rw_lock.h
+index cdb66295..f5a9fd57 100644
+--- a/utils/handles/rw_lock.h
++++ b/utils/handles/rw_lock.h
+@@ -28,17 +28,19 @@ extern "C" {
+ 
+ #include <pthread.h>
+ 
++// PTHREAD RW LOCK NOT AVAILABLE
++typedef int16_t pthread_rwlock_t;
+ typedef pthread_rwlock_t rw_lock_handle_t;
+ 
+-static inline int rw_lock_handle_init(rw_lock_handle_t* const lock) { return pthread_rwlock_init(lock, NULL); }
++static inline int rw_lock_handle_init(rw_lock_handle_t* const lock) { return 1/*pthread_rwlock_init(lock, NULL)*/; }
+ 
+-static inline int rw_lock_handle_rdlock(rw_lock_handle_t* const lock) { return pthread_rwlock_rdlock(lock); }
++static inline int rw_lock_handle_rdlock(rw_lock_handle_t* const lock) { return 1/*pthread_rwlock_rdlock(lock)*/; }
+ 
+-static inline int rw_lock_handle_wrlock(rw_lock_handle_t* const lock) { return pthread_rwlock_wrlock(lock); }
++static inline int rw_lock_handle_wrlock(rw_lock_handle_t* const lock) { return 1/*pthread_rwlock_wrlock(lock)*/; }
+ 
+-static inline int rw_lock_handle_unlock(rw_lock_handle_t* const lock) { return pthread_rwlock_unlock(lock); }
++static inline int rw_lock_handle_unlock(rw_lock_handle_t* const lock) { return 1/*pthread_rwlock_unlock(lock)*/; }
+ 
+-static inline int rw_lock_handle_destroy(rw_lock_handle_t* const lock) { return pthread_rwlock_destroy(lock); }
++static inline int rw_lock_handle_destroy(rw_lock_handle_t* const lock) { return 1/*pthread_rwlock_destroy(lock)*/; }
+ 
+ #elif defined(_WIN32)
+ 
+diff --git a/utils/system.c b/utils/system.c
+index 2b15fbc1..399707cc 100644
+--- a/utils/system.c
++++ b/utils/system.c
+@@ -37,6 +37,7 @@ int system_cpu_available() {
+   }
+   return count;
+ #else
+-  return sysconf(_SC_NPROCESSORS_ONLN);
++    // GET CPU AVAILABLE AMOUNT NOT AVAILABLE
++    return 2;//sysconf(_SC_NPROCESSORS_ONLN);
+ #endif
+ }
