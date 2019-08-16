@@ -21,7 +21,7 @@ To get the toolchain and ESP-IDF, please reference [esp-idf with CMake](https://
 ```
 git clone --recursive https://github.com/magnisinfo/iota_cclient_esp32
 cd iota_cclient_esp32
-git checkout iota_simple_wallet
+git checkout master
 ```
 
 ### Step 2: Init components
